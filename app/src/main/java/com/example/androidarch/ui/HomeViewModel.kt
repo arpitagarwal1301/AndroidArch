@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.androidarch.common.Resource
 import com.example.androidarch.data.Repository
 import com.example.androidarch.models.TweetsData
 import kotlinx.coroutines.launch
@@ -23,11 +24,13 @@ class HomeViewModel : ViewModel() {
 
     fun getPosts() {
         viewModelScope.launch {
-            var data = Repository.getPosts()
-            if(data.isSuccessful){
-                _tweetsData.postValue(data.body())
-            } else {
-                _errorData.postValue(data.errorBody().toString())
+            when(val response = Repository.getPosts()) {
+                is Resource.Success -> {
+                    _tweetsData.postValue(response.data)
+                }
+                is Resource.Error -> {
+                    _errorData.postValue(response.msg)
+                }
             }
         }
     }

@@ -1,7 +1,7 @@
 package com.example.androidarch.data
 
+import com.example.androidarch.common.Resource
 import com.example.androidarch.models.TweetsData
-import retrofit2.Response
 
 /**
  * @author Arpit Agarwal <arpit.agarwal@lenskart.in>
@@ -16,8 +16,19 @@ object Repository {
         networkService = retrofitHelper.create(NetworkService::class.java)
     }
 
-    suspend fun getPosts(): Response<TweetsData> {
-        return networkService.getTweets()
+    suspend fun getPosts(): Resource<TweetsData> {
+        try{
+            val response = networkService.getTweets()
+            val result = response.body()
+            if(response.isSuccessful && result != null) {
+                return Resource.Success(result)
+            } else {
+                return Resource.Error("Error :" + response.message())
+            }
+        } catch (e: Exception){
+            return Resource.Error("Something went wrong")
+        }
+
     }
 
 }
